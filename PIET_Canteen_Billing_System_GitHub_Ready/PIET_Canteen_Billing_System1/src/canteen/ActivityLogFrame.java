@@ -1,0 +1,5 @@
+package canteen;
+import javax.swing.*;import javax.swing.table.DefaultTableModel;import java.awt.*;import java.sql.*;
+public class ActivityLogFrame extends JFrame {
+ public ActivityLogFrame(String role){if(!AuditLog.isAdmin(role)){AuditLog.requireAdmin(null,role);dispose();return;}AppStyle.setWindowIcon(this);setTitle("PIET | Activity Log");setSize(1000,620);setLocationRelativeTo(null);JPanel p=AppStyle.page("Activity log");DefaultTableModel m=new DefaultTableModel(new String[]{"Timestamp","User","Action","Details"},0){public boolean isCellEditable(int r,int c){return false;}};JTable t=new JTable(m);AppStyle.styleTable(t);try(Connection c=DBConnection.getConnection();Statement s=c.createStatement();ResultSet r=s.executeQuery("SELECT created_at,username,action_type,details FROM activity_logs ORDER BY created_at DESC LIMIT 1000")){while(r.next())m.addRow(new Object[]{r.getTimestamp(1),r.getString(2),r.getString(3),r.getString(4)});}catch(SQLException e){JOptionPane.showMessageDialog(this,"Could not load activity log: "+e.getMessage());}p.add(new JScrollPane(t),BorderLayout.CENTER);add(p);}
+}
